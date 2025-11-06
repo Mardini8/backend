@@ -12,19 +12,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Observation {
+public class Encounter {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String code;      // typ av observation, t.ex. "blood-pressure"
-    private String valueText; // t.ex. "120/80"
-    private LocalDateTime effectiveDateTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     @ManyToOne(optional = false)
     private Patient patient;
 
     @ManyToOne
-    private Practitioner performer;
+    private Practitioner practitioner;
 
     @ManyToOne
-    private Encounter encounter;
+    private Location location;
 }

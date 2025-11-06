@@ -12,12 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Patient {
+
+public class Organization {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String firstName;
-    private String lastName;
-    private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
-    private String dateOfBirth;
+    private String name;
 }

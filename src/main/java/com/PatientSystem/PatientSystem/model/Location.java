@@ -10,12 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Practitioner {
+public class Location {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String firstName;
-    private String lastName;
-    private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
-    private String dateOfBirth;
+    private Long id;
+    private String name;
 
     @ManyToOne
     private Organization organization;
