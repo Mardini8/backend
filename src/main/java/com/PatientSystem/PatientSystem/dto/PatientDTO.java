@@ -1,4 +1,10 @@
 package com.PatientSystem.PatientSystem.dto;
 
-public class PatientDTO {
-}
+import java.time.LocalDate;
+
+public record PatientDTO(
+        Long id,
+        String givenName,
+        String familyName,
+        LocalDate birthDate
+) {}
