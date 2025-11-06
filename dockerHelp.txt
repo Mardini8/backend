@@ -11,6 +11,7 @@ docker run -d \
     patientsystem-backend
 
 
+
 om man inte gjort det gör först:
 
 docker network create patientsystem-net

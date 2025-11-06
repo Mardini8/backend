@@ -12,11 +12,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Inaktivera CSRF och CORS är kvar som vi tidigare bestämde
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Tillåt ALLA anrop till både /api/hello och alla /api/patients-anrop
+                        // VIKTIGT: Tillåt alla metoder (GET, POST, etc.) på /api/patients
                         .requestMatchers("/api/hello", "/api/patients/**").permitAll()
-                        // Alla andra förfrågningar kräver autentisering
+
+                        // Alla andra förfrågningar kräver autentisering (standard)
                         .anyRequest().authenticated()
                 );
 
