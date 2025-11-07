@@ -51,8 +51,4 @@ public class PatientService {
     public Optional<Patient> getPatientBySsn(String socialSecurityNumber) {
         return patientRepository.findBySocialSecurityNumber(socialSecurityNumber);
     }
-
-    public Patient get(Long id) { return patientRepository.findById(id).orElse(null); }
-    public Patient save(Patient p) { return patientRepository.save(p); }
-    public void delete(Long id) { patientRepository.deleteById(id); }
 }

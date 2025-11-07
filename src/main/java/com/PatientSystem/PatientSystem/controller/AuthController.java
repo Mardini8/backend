@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "http://localhost:3000") // CORS-konfiguration för frontend
 public class AuthController {
     private final AuthService auth;
     public AuthController(AuthService auth){ this.auth = auth; }

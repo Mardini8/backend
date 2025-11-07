@@ -12,14 +12,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Inaktivera CSRF och CORS är kvar som vi tidigare bestämde
+        // Inaktivera CSRF (Cross-Site Request Forgery)
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // VIKTIGT: Tillåt alla metoder (GET, POST, etc.) på /api/patients
-                        .requestMatchers("/api/hello", "/api/patients/**").permitAll()
-
-                        // Alla andra förfrågningar kräver autentisering (standard)
-                        .anyRequest().authenticated()
+                        // 1. Använd "/**" för att matcha ALLA sökvägar rekursivt
+                        // 2. Ta bort ".anyRequest().authenticated()" helt
+                        .requestMatchers("/**").permitAll()
                 );
 
         return http.build();

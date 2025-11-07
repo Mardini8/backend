@@ -2,6 +2,8 @@ Efter vi har ändrat i backend.
 
 maven package
 
+
+
 docker build -t patientsystem-backend .
 
 docker run -d \

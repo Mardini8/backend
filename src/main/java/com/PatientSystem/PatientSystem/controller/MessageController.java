@@ -7,6 +7,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/messages")
+@CrossOrigin(origins = "http://localhost:3000") // CORS-konfiguration för frontend
 public class MessageController {
     private final MessageService service;
     public MessageController(MessageService service){ this.service = service; }

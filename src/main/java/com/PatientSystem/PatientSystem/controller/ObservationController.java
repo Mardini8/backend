@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clinical")
+@CrossOrigin(origins = "http://localhost:3000") // CORS-konfiguration för frontend
 public class ObservationController {
     private final ObservationService service;
     public ObservationController(ObservationService service){ this.service = service; }
