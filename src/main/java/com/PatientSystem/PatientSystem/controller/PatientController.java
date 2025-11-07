@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000") // CORS-konfiguration för frontend
+@CrossOrigin(origins = "http://localhost:3000")
 public class PatientController {
 
     private final PatientService patientService;
@@ -24,9 +24,11 @@ public class PatientController {
      * Skapar en ny patient (Läkar- eller Personal-funktion)
      */
     @PostMapping
-    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO body) {
-        Patient saved = patientService.createPatient(ApiMapper.toEntity(body));
-        return ResponseEntity.created(URI.create("/api/v1/patients/" + saved.getId()))
+    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO dto) {
+        Patient patient = ApiMapper.toEntity(dto);
+        Patient saved = patientService.createPatient(patient);
+        return ResponseEntity
+                .created(URI.create("/api/patients/" + saved.getId()))
                 .body(ApiMapper.toDTO(saved));
     }
 
@@ -36,7 +38,10 @@ public class PatientController {
      */
     @GetMapping
     public List<PatientDTO> getAllPatients() {
-        return patientService.getAllPatients().stream().map(ApiMapper::toDTO).toList();
+        return patientService.getAllPatients()
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
     }
 
     /**
@@ -45,8 +50,9 @@ public class PatientController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<PatientDTO> getById(@PathVariable Long id) {
-        var p = patientService.getPatientById(id);
-        return p.map(value -> ResponseEntity.ok(ApiMapper.toDTO(value)))
+        return patientService.getPatientById(id)
+                .map(ApiMapper::toDTO)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

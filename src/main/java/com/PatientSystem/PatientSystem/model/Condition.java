@@ -20,9 +20,6 @@ public class Condition {
     private String display;    // beskrivning
     private LocalDate assertedDate;
 
-    @ManyToOne(optional = false)
-    private Patient patient;
-
-    @ManyToOne
-    private Practitioner recorder;
+    private Long patientId;
+    private Long practitionerId;
 }

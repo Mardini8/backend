@@ -15,11 +15,14 @@ import java.time.LocalDateTime;
 public class Message {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(optional = false) private User fromUser;
-    @ManyToOne(optional = false) private User toUser;
 
-    @ManyToOne(optional = false) private Patient patient;
-
-    @Column(length = 4000) private String content;
+    @Column(length = 4000)
+    private String content;
     private LocalDateTime sentAt = LocalDateTime.now();
+
+    private Long fromUserId;
+    private Long toUserId;
+    private Long patientId;
+
+
 }

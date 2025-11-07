@@ -16,66 +16,113 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/clinical")
-@CrossOrigin(origins = "http://localhost:3000") // CORS-konfiguration för frontend
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
-
 public class ObservationController {
     private final ObservationService service;
     private final PatientRepository patientRepository;
     private final PractitionerRepository practitionerRepository;
     private final EncounterRepository encounterRepository;
+    private final ConditionRepository conditionRepository;
+    private final LocationRepository locationRepository;
+
+    // ========== OBSERVATIONS ==========
 
     @GetMapping("/patients/{id}/observations")
     public List<ObservationDTO> observations(@PathVariable Long id) {
-        return service.observationsForPatient(id).stream().map(ApiMapper::toDTO).toList();
+        return service.observationsForPatient(id)
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
     }
 
     @PostMapping("/observations")
     public ResponseEntity<ObservationDTO> createObservation(@RequestBody ObservationDTO dto) {
-        Patient patient = patientRepository.findById(dto.patientId()).orElseThrow();
-        Practitioner performer = (dto.performerId()==null) ? null :
-                practitionerRepository.findById(dto.performerId()).orElseThrow();
-        Encounter enc = (dto.encounterId()==null) ? null :
-                encounterRepository.findById(dto.encounterId()).orElseThrow();
+        // Validera att patient finns
+        if (!patientRepository.existsById(dto.patientId())) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        Observation saved = service.saveObservation(ApiMapper.toEntity(dto, patient, performer, enc));
-        return ResponseEntity.created(URI.create("/api/v1/clinical/observations/" + saved.getId()))
+        // Validera performer om angivet
+        if (dto.performerId() != null && !practitionerRepository.existsById(dto.performerId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Validera encounter om angivet
+        if (dto.encounterId() != null && !encounterRepository.existsById(dto.encounterId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Observation observation = ApiMapper.toEntity(dto);
+        Observation saved = service.saveObservation(observation);
+
+        return ResponseEntity
+                .created(URI.create("/api/v1/clinical/observations/" + saved.getId()))
                 .body(ApiMapper.toDTO(saved));
     }
 
-    private final ConditionRepository conditionRepository;
+    // ========== CONDITIONS ==========
 
     @GetMapping("/patients/{id}/conditions")
     public List<ConditionDTO> conditions(@PathVariable Long id) {
-        return conditionRepository.findByPatientId(id).stream().map(ApiMapper::toDTO).toList();
+        return conditionRepository.findByPatientId(id)
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
     }
 
     @PostMapping("/conditions")
     public ResponseEntity<ConditionDTO> createCondition(@RequestBody ConditionDTO dto) {
-        Patient patient = patientRepository.findById(dto.patientId()).orElseThrow();
-        Practitioner recorder = (dto.recorderId()==null) ? null :
-                practitionerRepository.findById(dto.recorderId()).orElseThrow();
-        Condition saved = conditionRepository.save(ApiMapper.toEntity(dto, patient, recorder));
-        return ResponseEntity.created(URI.create("/api/v1/clinical/conditions/" + saved.getId()))
+        // Validera att patient finns
+        if (!patientRepository.existsById(dto.patientId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Validera recorder om angivet
+        if (dto.practitionerId() != null && !practitionerRepository.existsById(dto.practitionerId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Condition condition = ApiMapper.toEntity(dto);
+        Condition saved = conditionRepository.save(condition);
+
+        return ResponseEntity
+                .created(URI.create("/api/v1/clinical/conditions/" + saved.getId()))
                 .body(ApiMapper.toDTO(saved));
     }
 
-    private final LocationRepository locationRepository;
+    // ========== ENCOUNTERS ==========
 
     @GetMapping("/patients/{id}/encounters")
     public List<EncounterDTO> encounters(@PathVariable Long id) {
-        return service.encountersForPatient(id).stream().map(ApiMapper::toDTO).toList();
+        return service.encountersForPatient(id)
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
     }
+
     @PostMapping("/encounters")
     public ResponseEntity<EncounterDTO> createEncounter(@RequestBody EncounterDTO dto) {
-        Patient p = patientRepository.findById(dto.patientId()).orElseThrow();
-        Practitioner pr = (dto.practitionerId()==null) ? null :
-                practitionerRepository.findById(dto.practitionerId()).orElseThrow();
-        Location l = (dto.locationId()==null) ? null :
-                locationRepository.findById(dto.locationId()).orElseThrow();
+        // Validera att patient finns
+        if (!patientRepository.existsById(dto.patientId())) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        Encounter saved = service.saveEncounter(ApiMapper.toEntity(dto, p, pr, l));
-        return ResponseEntity.created(URI.create("/api/v1/clinical/encounters/" + saved.getId()))
+        // Validera practitioner om angivet
+        if (dto.practitionerId() != null && !practitionerRepository.existsById(dto.practitionerId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Validera location om angivet
+        if (dto.locationId() != null && !locationRepository.existsById(dto.locationId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Encounter encounter = ApiMapper.toEntity(dto);
+        Encounter saved = service.saveEncounter(encounter);
+
+        return ResponseEntity
+                .created(URI.create("/api/v1/clinical/encounters/" + saved.getId()))
                 .body(ApiMapper.toDTO(saved));
     }
 }

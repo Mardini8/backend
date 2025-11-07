@@ -19,12 +19,7 @@ public class Observation {
     private String valueText; // t.ex. "120/80"
     private LocalDateTime effectiveDateTime;
 
-    @ManyToOne(optional = false)
-    private Patient patient;
-
-    @ManyToOne
-    private Practitioner performer;
-
-    @ManyToOne
-    private Encounter encounter;
+    private Long patientId;
+    private Long performerId;
+    private Long encounterId;
 }

@@ -19,6 +19,5 @@ public class Practitioner {
     private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
     private String dateOfBirth;
 
-    @ManyToOne
-    private Organization organization;
+    private Long organizationId;
 }

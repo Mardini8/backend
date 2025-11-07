@@ -21,12 +21,4 @@ public class Patient {
     private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
     private String dateOfBirth;
 
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Condition> conditions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Observation> observations = new ArrayList<>();
-
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Encounter> encounters = new ArrayList<>();
 }

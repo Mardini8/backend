@@ -15,6 +15,5 @@ public class Location {
     private Long id;
     private String name;
 
-    @ManyToOne
-    private Organization organization;
+    private Long organizationId;
 }

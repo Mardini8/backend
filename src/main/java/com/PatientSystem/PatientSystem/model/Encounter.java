@@ -18,12 +18,9 @@ public class Encounter {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    @ManyToOne(optional = false)
-    private Patient patient;
+    private Long patientId;
 
-    @ManyToOne
-    private Practitioner practitioner;
+    private Long practitionerId;
 
-    @ManyToOne
-    private Location location;
+    private Long locationId;
 }
