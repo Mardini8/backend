@@ -1,12 +1,14 @@
 package com.PatientSystem.PatientSystem.controller;
 
+import com.PatientSystem.PatientSystem.dto.PatientDTO;
+import com.PatientSystem.PatientSystem.mapper.ApiMapper;
 import com.PatientSystem.PatientSystem.model.Patient;
 import com.PatientSystem.PatientSystem.service.PatientService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,10 +24,10 @@ public class PatientController {
      * Skapar en ny patient (Läkar- eller Personal-funktion)
      */
     @PostMapping
-    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
-        Patient createdPatient = patientService.createPatient(patient);
-        // Returnerar den skapade patienten med HTTP-status 201 (Created)
-        return new ResponseEntity<>(createdPatient, HttpStatus.CREATED);
+    public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO body) {
+        Patient saved = patientService.createPatient(ApiMapper.toEntity(body));
+        return ResponseEntity.created(URI.create("/api/v1/patients/" + saved.getId()))
+                .body(ApiMapper.toDTO(saved));
     }
 
     /**
@@ -33,9 +35,8 @@ public class PatientController {
      * Hämtar en lista över alla patienter (Läkar- eller Personal-funktion)
      */
     @GetMapping
-    public ResponseEntity<List<Patient>> getAllPatients() {
-        List<Patient> patients = patientService.getAllPatients();
-        return ResponseEntity.ok(patients); // HTTP-status 200 (OK)
+    public List<PatientDTO> getAllPatients() {
+        return patientService.getAllPatients().stream().map(ApiMapper::toDTO).toList();
     }
 
     /**
@@ -43,10 +44,9 @@ public class PatientController {
      * Hämtar en specifik patient efter ID (Läkare/Personal/Patient-funktion)
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
-        // Försöker hitta patienten. Om den inte hittas, returneras 404 (Not Found)
-        return patientService.getPatientById(id)
-                .map(ResponseEntity::ok)
+    public ResponseEntity<PatientDTO> getById(@PathVariable Long id) {
+        var p = patientService.getPatientById(id);
+        return p.map(value -> ResponseEntity.ok(ApiMapper.toDTO(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

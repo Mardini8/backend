@@ -1,5 +1,7 @@
 package com.PatientSystem.PatientSystem.controller;
 
+import com.PatientSystem.PatientSystem.dto.UserDTO;
+import com.PatientSystem.PatientSystem.mapper.ApiMapper;
 import com.PatientSystem.PatientSystem.model.Role;
 import com.PatientSystem.PatientSystem.model.User;
 import com.PatientSystem.PatientSystem.service.AuthService;
@@ -17,13 +19,14 @@ public class AuthController {
     public record LoginRequest(String username, String password) {}
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest req){
-        return ResponseEntity.ok(auth.register(req.username(), req.email(), req.password(), req.role()));
+    public ResponseEntity<UserDTO> register(@RequestBody RegisterRequest req){
+        User u = auth.register(req.username(), req.email(), req.password(), req.role());
+        return ResponseEntity.ok(ApiMapper.toDTO(u));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest req){
+    public ResponseEntity<UserDTO> login(@RequestBody LoginRequest req){
         User u = auth.login(req.username(), req.password());
-        return (u == null) ? ResponseEntity.status(401).build() : ResponseEntity.ok(u);
+        return (u == null) ? ResponseEntity.status(401).build() : ResponseEntity.ok(ApiMapper.toDTO(u));
     }
 }
