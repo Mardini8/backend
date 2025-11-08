@@ -19,5 +19,8 @@ public class Practitioner {
     private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
     private String dateOfBirth;
 
+    // Title: "Staff" eller "Doctor"
+    private String title;
+
     private Long organizationId;
 }

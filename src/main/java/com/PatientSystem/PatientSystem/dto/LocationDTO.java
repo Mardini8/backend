@@ -3,5 +3,7 @@ package com.PatientSystem.PatientSystem.dto;
 public record LocationDTO(
         Long id,
         String name,
-        Long organizationId
+        String address,
+        String city,
+        String postalCode
 ) {}

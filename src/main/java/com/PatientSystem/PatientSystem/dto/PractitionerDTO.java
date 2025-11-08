@@ -6,5 +6,6 @@ public record PractitionerDTO(
         String lastName,
         String socialSecurityNumber,
         String dateOfBirth,
+        String title,
         Long organizationId
 ) {}

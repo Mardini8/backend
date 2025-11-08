@@ -19,10 +19,6 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    /**
-     * POST /api/patients
-     * Skapar en ny patient (Läkar- eller Personal-funktion)
-     */
     @PostMapping
     public ResponseEntity<PatientDTO> createPatient(@RequestBody PatientDTO dto) {
         Patient patient = ApiMapper.toEntity(dto);
@@ -32,10 +28,6 @@ public class PatientController {
                 .body(ApiMapper.toDTO(saved));
     }
 
-    /**
-     * GET /api/patients
-     * Hämtar en lista över alla patienter (Läkar- eller Personal-funktion)
-     */
     @GetMapping
     public List<PatientDTO> getAllPatients() {
         return patientService.getAllPatients()
@@ -44,15 +36,34 @@ public class PatientController {
                 .toList();
     }
 
-    /**
-     * GET /api/patients/{id}
-     * Hämtar en specifik patient efter ID (Läkare/Personal/Patient-funktion)
-     */
     @GetMapping("/{id}")
     public ResponseEntity<PatientDTO> getById(@PathVariable Long id) {
         return patientService.getPatientById(id)
                 .map(ApiMapper::toDTO)
                 .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/ssn/{ssn}")
+    public ResponseEntity<PatientDTO> getBySsn(@PathVariable String ssn) {
+        return patientService.getPatientBySsn(ssn)
+                .map(ApiMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientDTO> updatePatient(
+            @PathVariable Long id,
+            @RequestBody PatientDTO dto) {
+
+        return patientService.getPatientById(id)
+                .map(existing -> {
+                    Patient updated = ApiMapper.toEntity(dto);
+                    updated.setId(id);
+                    Patient saved = patientService.createPatient(updated);
+                    return ResponseEntity.ok(ApiMapper.toDTO(saved));
+                })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

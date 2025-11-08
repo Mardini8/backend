@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 public record ObservationDTO(
         Long id,
         Long patientId,
-        Long performerId,     // practitioner (valfritt)
-        Long encounterId,     // encounter (valfritt)
+        Long performerId,
+        Long encounterId,
         String code,
         String valueText,
         LocalDateTime effectiveDateTime

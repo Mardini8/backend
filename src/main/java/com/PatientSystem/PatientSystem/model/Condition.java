@@ -16,8 +16,8 @@ public class Condition {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String code;       // t.ex. ICD10
-    private String display;    // beskrivning
+    private String code;
+    private String display;
     private LocalDate assertedDate;
 
     private Long patientId;

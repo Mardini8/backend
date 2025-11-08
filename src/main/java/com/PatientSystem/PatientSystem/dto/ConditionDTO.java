@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public record ConditionDTO(
         Long id,
         Long patientId,
-        Long practitionerId,   // practitioner som registrerat diagnosen
+        Long practitionerId,
         String code,
         String display,
         LocalDate assertedDate

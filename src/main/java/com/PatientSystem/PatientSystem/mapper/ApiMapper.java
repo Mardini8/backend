@@ -5,14 +5,15 @@ import com.PatientSystem.PatientSystem.model.*;
 
 public class ApiMapper {
 
-    // --- USER ---
+    // ========== USER ==========
     public static UserDTO toDTO(User u) {
         if (u == null) return null;
         return new UserDTO(
                 u.getId(),
                 u.getUsername(),
                 u.getEmail(),
-                u.getRole() != null ? u.getRole().name() : null
+                u.getRole() != null ? u.getRole().name() : null,
+                u.getForeignId()
         );
     }
 
@@ -25,10 +26,11 @@ public class ApiMapper {
         if (dto.role() != null) {
             u.setRole(Role.valueOf(dto.role()));
         }
+        u.setForeignId(dto.foreignId());
         return u;
     }
 
-    // --- PATIENT ---
+    // ========== PATIENT ==========
     public static PatientDTO toDTO(Patient p) {
         if (p == null) return null;
         return new PatientDTO(
@@ -51,7 +53,76 @@ public class ApiMapper {
         return p;
     }
 
-    // --- OBSERVATION ---
+    // ========== PRACTITIONER ==========
+    public static PractitionerDTO toDTO(Practitioner p) {
+        if (p == null) return null;
+        return new PractitionerDTO(
+                p.getId(),
+                p.getFirstName(),
+                p.getLastName(),
+                p.getSocialSecurityNumber(),
+                p.getDateOfBirth(),
+                p.getTitle(),
+                p.getOrganizationId()
+        );
+    }
+
+    public static Practitioner toEntity(PractitionerDTO dto) {
+        if (dto == null) return null;
+        Practitioner p = new Practitioner();
+        p.setId(dto.id());
+        p.setFirstName(dto.firstName());
+        p.setLastName(dto.lastName());
+        p.setSocialSecurityNumber(dto.socialSecurityNumber());
+        p.setDateOfBirth(dto.dateOfBirth());
+        p.setTitle(dto.title());
+        p.setOrganizationId(dto.organizationId());
+        return p;
+    }
+
+    // ========== ORGANIZATION ==========
+    public static OrganizationDTO toDTO(Organization o) {
+        if (o == null) return null;
+        return new OrganizationDTO(
+                o.getId(),
+                o.getName(),
+                o.getLocationId()
+        );
+    }
+
+    public static Organization toEntity(OrganizationDTO dto) {
+        if (dto == null) return null;
+        Organization o = new Organization();
+        o.setId(dto.id());
+        o.setName(dto.name());
+        o.setLocationId(dto.locationId());
+        return o;
+    }
+
+    // ========== LOCATION ==========
+    public static LocationDTO toDTO(Location l) {
+        if (l == null) return null;
+        return new LocationDTO(
+                l.getId(),
+                l.getName(),
+                l.getAddress(),
+                l.getCity(),
+                l.getPostalCode()
+        );
+    }
+
+    public static Location toEntity(LocationDTO dto) {
+        if (dto == null) return null;
+        Location l = new Location();
+        l.setId(dto.id());
+        l.setName(dto.name());
+        l.setAddress(dto.address());
+        l.setCity(dto.city());
+        l.setPostalCode(dto.postalCode());
+        return l;
+    }
+
+    // ========== OBSERVATION ==========
     public static ObservationDTO toDTO(Observation o) {
         if (o == null) return null;
         return new ObservationDTO(
@@ -78,7 +149,7 @@ public class ApiMapper {
         return o;
     }
 
-    // --- CONDITION ---
+    // ========== CONDITION ==========
     public static ConditionDTO toDTO(Condition c) {
         if (c == null) return null;
         return new ConditionDTO(
@@ -103,7 +174,7 @@ public class ApiMapper {
         return c;
     }
 
-    // --- ENCOUNTER ---
+    // ========== ENCOUNTER ==========
     public static EncounterDTO toDTO(Encounter e) {
         if (e == null) return null;
         return new EncounterDTO(
@@ -128,7 +199,7 @@ public class ApiMapper {
         return e;
     }
 
-    // --- MESSAGE ---
+    // ========== MESSAGE ==========
     public static MessageDTO toDTO(Message m) {
         if (m == null) return null;
         return new MessageDTO(
@@ -151,66 +222,5 @@ public class ApiMapper {
         m.setContent(dto.content());
         m.setSentAt(dto.sentAt());
         return m;
-    }
-
-    // --- PRACTITIONER ---
-    public static PractitionerDTO toDTO(Practitioner p) {
-        if (p == null) return null;
-        return new PractitionerDTO(
-                p.getId(),
-                p.getFirstName(),
-                p.getLastName(),
-                p.getSocialSecurityNumber(),
-                p.getDateOfBirth(),
-                p.getOrganizationId()
-        );
-    }
-
-    public static Practitioner toEntity(PractitionerDTO dto) {
-        if (dto == null) return null;
-        Practitioner p = new Practitioner();
-        p.setId(dto.id());
-        p.setFirstName(dto.firstName());
-        p.setLastName(dto.lastName());
-        p.setSocialSecurityNumber(dto.socialSecurityNumber());
-        p.setDateOfBirth(dto.dateOfBirth());
-        p.setOrganizationId(dto.organizationId());
-        return p;
-    }
-
-    // --- LOCATION ---
-    public static LocationDTO toDTO(Location l) {
-        if (l == null) return null;
-        return new LocationDTO(
-                l.getId(),
-                l.getName(),
-                l.getOrganizationId()
-        );
-    }
-
-    public static Location toEntity(LocationDTO dto) {
-        if (dto == null) return null;
-        Location l = new Location();
-        l.setId(dto.id());
-        l.setName(dto.name());
-        l.setOrganizationId(dto.organizationId());
-        return l;
-    }
-
-    // --- ORGANIZATION ---
-    public static OrganizationDTO toDTO(Organization o) {
-        if (o == null) return null;
-        return new OrganizationDTO(
-                o.getId(),
-                o.getName()
-        );
-    }
-
-    public static Organization toEntity(OrganizationDTO dto) {
-        if (dto == null) return null;
-        Organization o = new Organization();
-        o.setId(dto.id());
-        o.setName(dto.name());
-        return o;
     }
 }

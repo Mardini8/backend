@@ -2,5 +2,9 @@ package com.PatientSystem.PatientSystem.repository;
 import com.PatientSystem.PatientSystem.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OrganizationRepository extends JpaRepository<Organization, Long> { }
+import java.util.List;
+
+public interface OrganizationRepository extends JpaRepository<Organization, Long> {
+    List<Organization> findByLocationId(Long locationId);
+}
 

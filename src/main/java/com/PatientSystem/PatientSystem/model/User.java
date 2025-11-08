@@ -20,4 +20,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    /**
+     * Foreign ID som kopplar till antingen:
+     * - Patient.id om role = PATIENT
+     * - Practitioner.id om role = DOCTOR eller STAFF
+     */
+    private Long foreignId;
 }

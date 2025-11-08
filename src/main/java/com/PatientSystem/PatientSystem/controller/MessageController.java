@@ -22,6 +22,7 @@ public class MessageController {
     private final UserRepository users;
     private final PatientRepository patients;
 
+
     @GetMapping("/patient/{patientId}")
     public List<MessageDTO> forPatient(@PathVariable Long patientId) {
         return service.forPatient(patientId)
@@ -30,12 +31,32 @@ public class MessageController {
                 .toList();
     }
 
+    @GetMapping("/from-user/{userId}")
+    public List<MessageDTO> fromUser(@PathVariable Long userId) {
+        return service.fromUser(userId)
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
+    }
+
+    @GetMapping("/to-user/{userId}")
+    public List<MessageDTO> toUser(@PathVariable Long userId) {
+        return service.toUser(userId)
+                .stream()
+                .map(ApiMapper::toDTO)
+                .toList();
+    }
+
     @PostMapping
     public ResponseEntity<MessageDTO> send(@RequestBody MessageDTO dto) {
         // Validera att alla användare och patient finns
-        if (!users.existsById(dto.fromUserId()) ||
-                !users.existsById(dto.toUserId()) ||
-                !patients.existsById(dto.patientId())) {
+        if (!users.existsById(dto.fromUserId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!users.existsById(dto.toUserId())) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!patients.existsById(dto.patientId())) {
             return ResponseEntity.badRequest().build();
         }
 

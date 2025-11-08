@@ -14,6 +14,7 @@ public class Location {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-
-    private Long organizationId;
+    private String address;
+    private String city;
+    private String postalCode;
 }

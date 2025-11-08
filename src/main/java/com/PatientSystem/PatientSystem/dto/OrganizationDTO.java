@@ -2,5 +2,6 @@ package com.PatientSystem.PatientSystem.dto;
 
 public record OrganizationDTO(
         Long id,
-        String name
+        String name,
+        Long locationId
 ) {}
