@@ -16,8 +16,9 @@ public class Condition {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String code;
-    private String display;
+    @Column(length = 1000)
+    private String description;
+
     private LocalDate assertedDate;
 
     private Long patientId;

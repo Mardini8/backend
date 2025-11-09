@@ -7,7 +7,6 @@ public record ObservationDTO(
         Long patientId,
         Long performerId,
         Long encounterId,
-        String code,
-        String valueText,
+        String description,
         LocalDateTime effectiveDateTime
 ) {}

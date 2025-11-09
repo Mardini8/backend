@@ -18,7 +18,7 @@ public class Patient {
 
     private String firstName;
     private String lastName;
-    private String socialSecurityNumber; // Personnummer, kan användas som unik identifierare
+    private String socialSecurityNumber;
     private String dateOfBirth;
 
 }

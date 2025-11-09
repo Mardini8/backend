@@ -19,7 +19,6 @@ public class LocationController {
 
     private final LocationService locationService;
 
-
     @PostMapping
     public ResponseEntity<LocationDTO> createLocation(@RequestBody LocationDTO dto) {
         Location location = ApiMapper.toEntity(dto);
@@ -38,21 +37,12 @@ public class LocationController {
                 .toList();
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getById(@PathVariable Long id) {
         return locationService.getLocationById(id)
                 .map(ApiMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/by-city/{city}")
-    public List<LocationDTO> getByCity(@PathVariable String city) {
-        return locationService.getLocationsByCity(city)
-                .stream()
-                .map(ApiMapper::toDTO)
-                .toList();
     }
 
     @PutMapping("/{id}")

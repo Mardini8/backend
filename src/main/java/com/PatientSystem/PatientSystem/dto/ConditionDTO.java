@@ -6,7 +6,6 @@ public record ConditionDTO(
         Long id,
         Long patientId,
         Long practitionerId,
-        String code,
-        String display,
+        String description,
         LocalDate assertedDate
 ) {}

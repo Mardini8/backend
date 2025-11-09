@@ -1,26 +1,36 @@
 package com.PatientSystem.PatientSystem.service;
 
-import com.PatientSystem.PatientSystem.model.*;
-import com.PatientSystem.PatientSystem.repository.*;
+import com.PatientSystem.PatientSystem.model.Observation;
+import com.PatientSystem.PatientSystem.repository.ObservationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ObservationService {
-    private final ObservationRepository obsRepository;
-    private final ConditionRepository condRepository;
-    private final EncounterRepository encRepository;
 
-    public ObservationService(ObservationRepository o, ConditionRepository c, EncounterRepository e) {
-        this.obsRepository = o; this.condRepository = c; this.encRepository = e;
+    private final ObservationRepository observationRepository;
+
+    public List<Observation> getObservationsForPatient(Long patientId) {
+        return observationRepository.findByPatientId(patientId);
     }
 
-    public List<Observation> observationsForPatient(Long patientId){ return obsRepository.findByPatientId(patientId); }
-    public Observation saveObservation(Observation o){ return obsRepository.save(o); }
+    public List<Observation> getObservationsByPerformer(Long performerId) {
+        return observationRepository.findByPerformerId(performerId);
+    }
 
-    public List<Condition> conditionsForPatient(Long patientId){ return condRepository.findByPatientId(patientId); }
-    public Condition saveCondition(Condition c){ return condRepository.save(c); }
+    public Observation saveObservation(Observation observation) {
+        return observationRepository.save(observation);
+    }
 
-    public List<Encounter> encountersForPatient(Long patientId){ return encRepository.findByPatientId(patientId); }
-    public Encounter saveEncounter(Encounter e){ return encRepository.save(e); }
+    public Optional<Observation> getObservationById(Long id) {
+        return observationRepository.findById(id);
+    }
+
+    public void deleteObservation(Long id) {
+        observationRepository.deleteById(id);
+    }
 }

@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class Observation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String code;      // typ av observation, t.ex. "blood-pressure"
-    private String valueText; // t.ex. "120/80"
+
+    @Column(length = 1000)
+    private String description;
+
     private LocalDateTime effectiveDateTime;
 
     private Long patientId;

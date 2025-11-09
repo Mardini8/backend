@@ -24,5 +24,4 @@ public class Message {
     private Long toUserId;
     private Long patientId;
 
-
 }

@@ -104,10 +104,7 @@ public class ApiMapper {
         if (l == null) return null;
         return new LocationDTO(
                 l.getId(),
-                l.getName(),
-                l.getAddress(),
-                l.getCity(),
-                l.getPostalCode()
+                l.getName()
         );
     }
 
@@ -116,9 +113,6 @@ public class ApiMapper {
         Location l = new Location();
         l.setId(dto.id());
         l.setName(dto.name());
-        l.setAddress(dto.address());
-        l.setCity(dto.city());
-        l.setPostalCode(dto.postalCode());
         return l;
     }
 
@@ -130,8 +124,7 @@ public class ApiMapper {
                 o.getPatientId(),
                 o.getPerformerId(),
                 o.getEncounterId(),
-                o.getCode(),
-                o.getValueText(),
+                o.getDescription(),
                 o.getEffectiveDateTime()
         );
     }
@@ -143,8 +136,7 @@ public class ApiMapper {
         o.setPatientId(dto.patientId());
         o.setPerformerId(dto.performerId());
         o.setEncounterId(dto.encounterId());
-        o.setCode(dto.code());
-        o.setValueText(dto.valueText());
+        o.setDescription(dto.description());
         o.setEffectiveDateTime(dto.effectiveDateTime());
         return o;
     }
@@ -156,8 +148,7 @@ public class ApiMapper {
                 c.getId(),
                 c.getPatientId(),
                 c.getPractitionerId(),
-                c.getCode(),
-                c.getDisplay(),
+                c.getDescription(),
                 c.getAssertedDate()
         );
     }
@@ -168,8 +159,7 @@ public class ApiMapper {
         c.setId(dto.id());
         c.setPatientId(dto.patientId());
         c.setPractitionerId(dto.practitionerId());
-        c.setCode(dto.code());
-        c.setDisplay(dto.display());
+        c.setDescription(dto.description());
         c.setAssertedDate(dto.assertedDate());
         return c;
     }
