@@ -1,7 +1,9 @@
 package com.PatientSystem.PatientSystem.service;
 
 import com.PatientSystem.PatientSystem.model.Organization;
+import com.PatientSystem.PatientSystem.repository.LocationRepository;
 import com.PatientSystem.PatientSystem.repository.OrganizationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,14 @@ import java.util.Optional;
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final LocationRepository locationRepository;
+
 
     public Organization createOrganization(Organization organization) {
+        // Uppdatering: säkerställ att posten finns
+        if (organization.getId() != null && !organizationRepository.existsById(organization.getId())) {
+            throw new EntityNotFoundException("Organization not found: " + organization.getId());
+        }
         return organizationRepository.save(organization);
     }
 
@@ -31,6 +39,9 @@ public class OrganizationService {
     }
 
     public void deleteOrganization(Long id) {
+        if (!organizationRepository.existsById(id)) {
+            throw new EntityNotFoundException("Organization not found: " + id);
+        }
         organizationRepository.deleteById(id);
     }
 }

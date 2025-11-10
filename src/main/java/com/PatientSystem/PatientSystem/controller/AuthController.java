@@ -4,8 +4,6 @@ import com.PatientSystem.PatientSystem.dto.UserDTO;
 import com.PatientSystem.PatientSystem.mapper.ApiMapper;
 import com.PatientSystem.PatientSystem.model.Role;
 import com.PatientSystem.PatientSystem.model.User;
-import com.PatientSystem.PatientSystem.repository.PatientRepository;
-import com.PatientSystem.PatientSystem.repository.PractitionerRepository;
 import com.PatientSystem.PatientSystem.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService auth;
-    private final PatientRepository patientRepository;
-    private final PractitionerRepository practitionerRepository;
-
     public record RegisterRequest(
             String username,
             String email,
@@ -32,21 +27,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody RegisterRequest req) {
-        // Validera att foreignId är korrekt baserat på roll
-        if (req.foreignId() != null) {
-            if (req.role() == Role.PATIENT) {
-                // Validera att patient finns
-                if (!patientRepository.existsById(req.foreignId())) {
-                    return ResponseEntity.badRequest().build();
-                }
-            } else if (req.role() == Role.DOCTOR || req.role() == Role.STAFF) {
-                // Validera att practitioner finns
-                if (!practitionerRepository.existsById(req.foreignId())) {
-                    return ResponseEntity.badRequest().build();
-                }
-            }
-        }
-
         User u = auth.register(
                 req.username(),
                 req.email(),

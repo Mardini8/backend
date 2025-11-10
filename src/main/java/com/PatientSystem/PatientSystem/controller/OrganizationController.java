@@ -3,7 +3,6 @@ package com.PatientSystem.PatientSystem.controller;
 import com.PatientSystem.PatientSystem.dto.OrganizationDTO;
 import com.PatientSystem.PatientSystem.mapper.ApiMapper;
 import com.PatientSystem.PatientSystem.model.Organization;
-import com.PatientSystem.PatientSystem.repository.LocationRepository;
 import com.PatientSystem.PatientSystem.service.OrganizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +18,11 @@ import java.util.List;
 public class OrganizationController {
 
     private final OrganizationService organizationService;
-    private final LocationRepository locationRepository;
 
     @PostMapping
     public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody OrganizationDTO dto) {
-        // Validera att location finns om locationId är angiven
-        if (dto.locationId() != null && !locationRepository.existsById(dto.locationId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Organization organization = ApiMapper.toEntity(dto);
-        Organization saved = organizationService.createOrganization(organization);
+        Organization entity = ApiMapper.toEntity(dto);
+        Organization saved = organizationService.createOrganization(entity);
 
         return ResponseEntity
                 .created(URI.create("/api/organizations/" + saved.getId()))
@@ -56,11 +49,6 @@ public class OrganizationController {
     public ResponseEntity<OrganizationDTO> updateOrganization(
             @PathVariable Long id,
             @RequestBody OrganizationDTO dto) {
-
-        // Validera att location finns om locationId är angiven
-        if (dto.locationId() != null && !locationRepository.existsById(dto.locationId())) {
-            return ResponseEntity.badRequest().build();
-        }
 
         return organizationService.getOrganizationById(id)
                 .map(existing -> {

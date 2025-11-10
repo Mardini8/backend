@@ -3,21 +3,38 @@ package com.PatientSystem.PatientSystem.service;
 import aj.org.objectweb.asm.commons.Remapper;
 import com.PatientSystem.PatientSystem.model.Role;
 import com.PatientSystem.PatientSystem.model.User;
+import com.PatientSystem.PatientSystem.repository.PatientRepository;
+import com.PatientSystem.PatientSystem.repository.PractitionerRepository;
 import com.PatientSystem.PatientSystem.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
 @Service
 public class AuthService {
     private final UserRepository users;
-    public AuthService(UserRepository users){ this.users = users; }
+
+    public AuthService(UserRepository users) {this.users = users;}
 
     public User register(String username, String email, String password, Role role,Long foreignId){
-        if(users.existsByUsername(username)) throw new IllegalArgumentException("Username taken");
+        if (!StringUtils.hasText(username)) {
+            throw new IllegalArgumentException("username is required");
+        }
+        if (!StringUtils.hasText(password)) {
+            throw new IllegalArgumentException("password is required");
+        }
+        if (role == null) {
+            throw new IllegalArgumentException("role is required");
+        }
+        if (users.existsByUsername(username)) {
+            throw new IllegalArgumentException("username taken");
+        }
+
         User u = new User();
         u.setUsername(username);
-        u.setPassword(password); // OBS! för labb; i skarpt: bcrypt
+        u.setEmail(email);
+        u.setPassword(password);
         u.setRole(role);
         u.setForeignId(foreignId);
         return users.save(u);

@@ -21,9 +21,6 @@ import java.util.List;
 public class EncounterController {
 
     private final EncounterService encounterService;
-    private final PatientRepository patientRepository;
-    private final PractitionerRepository practitionerRepository;
-    private final LocationRepository locationRepository;
 
     @GetMapping("/patient/{patientId}")
     public List<EncounterDTO> getEncountersForPatient(@PathVariable Long patientId) {
@@ -59,23 +56,8 @@ public class EncounterController {
 
     @PostMapping
     public ResponseEntity<EncounterDTO> createEncounter(@RequestBody EncounterDTO dto) {
-        // Validera att patient finns
-        if (!patientRepository.existsById(dto.patientId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validera practitioner om angivet
-        if (dto.practitionerId() != null && !practitionerRepository.existsById(dto.practitionerId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validera location om angivet
-        if (dto.locationId() != null && !locationRepository.existsById(dto.locationId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Encounter encounter = ApiMapper.toEntity(dto);
-        Encounter saved = encounterService.saveEncounter(encounter);
+        Encounter entity = ApiMapper.toEntity(dto);
+        Encounter saved = encounterService.saveEncounter(entity);
 
         return ResponseEntity
                 .created(URI.create("/api/v1/clinical/encounters/" + saved.getId()))

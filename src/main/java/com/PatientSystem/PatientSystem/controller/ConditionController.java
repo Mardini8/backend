@@ -3,8 +3,6 @@ package com.PatientSystem.PatientSystem.controller;
 import com.PatientSystem.PatientSystem.dto.ConditionDTO;
 import com.PatientSystem.PatientSystem.mapper.ApiMapper;
 import com.PatientSystem.PatientSystem.model.Condition;
-import com.PatientSystem.PatientSystem.repository.PatientRepository;
-import com.PatientSystem.PatientSystem.repository.PractitionerRepository;
 import com.PatientSystem.PatientSystem.service.ConditionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +18,6 @@ import java.util.List;
 public class ConditionController {
 
     private final ConditionService conditionService;
-    private final PatientRepository patientRepository;
-    private final PractitionerRepository practitionerRepository;
 
     @GetMapping("/patient/{patientId}")
     public List<ConditionDTO> getConditionsForPatient(@PathVariable Long patientId) {
@@ -41,18 +37,8 @@ public class ConditionController {
 
     @PostMapping
     public ResponseEntity<ConditionDTO> createCondition(@RequestBody ConditionDTO dto) {
-        // Validera att patient finns
-        if (!patientRepository.existsById(dto.patientId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validera practitioner om angivet
-        if (dto.practitionerId() != null && !practitionerRepository.existsById(dto.practitionerId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Condition condition = ApiMapper.toEntity(dto);
-        Condition saved = conditionService.saveCondition(condition);
+        Condition entity = ApiMapper.toEntity(dto);
+        Condition saved = conditionService.saveCondition(entity, dto);
 
         return ResponseEntity
                 .created(URI.create("/api/v1/clinical/conditions/" + saved.getId()))
@@ -68,7 +54,7 @@ public class ConditionController {
                 .map(existing -> {
                     Condition updated = ApiMapper.toEntity(dto);
                     updated.setId(id);
-                    Condition saved = conditionService.saveCondition(updated);
+                    Condition saved = conditionService.saveCondition(updated, dto);
                     return ResponseEntity.ok(ApiMapper.toDTO(saved));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

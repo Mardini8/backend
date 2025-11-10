@@ -21,9 +21,7 @@ import java.util.List;
 public class ObservationController {
 
     private final ObservationService observationService;
-    private final PatientRepository patientRepository;
-    private final PractitionerRepository practitionerRepository;
-    private final EncounterRepository encounterRepository;
+
 
     @GetMapping("/patient/{patientId}")
     public List<ObservationDTO> getObservationsForPatient(@PathVariable Long patientId) {
@@ -51,21 +49,6 @@ public class ObservationController {
 
     @PostMapping
     public ResponseEntity<ObservationDTO> createObservation(@RequestBody ObservationDTO dto) {
-        // Validera att patient finns
-        if (!patientRepository.existsById(dto.patientId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validera performer om angivet
-        if (dto.performerId() != null && !practitionerRepository.existsById(dto.performerId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        // Validera encounter om angivet
-        if (dto.encounterId() != null && !encounterRepository.existsById(dto.encounterId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
         Observation observation = ApiMapper.toEntity(dto);
         Observation saved = observationService.saveObservation(observation);
 
@@ -75,10 +58,7 @@ public class ObservationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ObservationDTO> updateObservation(
-            @PathVariable Long id,
-            @RequestBody ObservationDTO dto) {
-
+    public ResponseEntity<ObservationDTO> updateObservation(@PathVariable Long id, @RequestBody ObservationDTO dto) {
         return observationService.getObservationById(id)
                 .map(existing -> {
                     Observation updated = ApiMapper.toEntity(dto);
