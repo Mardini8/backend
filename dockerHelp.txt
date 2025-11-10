@@ -28,3 +28,6 @@ docker run -d \
     -v mysql_data:/var/lib/mysql \
     mysql:8.0
 
+
+Logga in i docker mysql:
+docker exec -it mysql-container mysql -u user -p

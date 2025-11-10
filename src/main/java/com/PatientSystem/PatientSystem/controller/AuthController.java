@@ -73,4 +73,12 @@ public class AuthController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/user-by-foreign/{foreignId}")
+    public ResponseEntity<UserDTO> getUserByForeignId(@PathVariable Long foreignId) {
+        return auth.getUserByForeignId(foreignId)
+                .map(ApiMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
