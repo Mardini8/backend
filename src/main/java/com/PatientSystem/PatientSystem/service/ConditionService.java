@@ -27,22 +27,14 @@ public class ConditionService {
         return conditionRepository.findByPatientId(patientId);
     }
 
-    /**
-     * Validerar relations-ID:n mot repos med hjälp av DTO:n
-     * (entiteten behöver inte ha motsvarande getXxxId()-metoder).
-     */
-    public Condition saveCondition(Condition condition, ConditionDTO dto) {
-        Long patientId = dto.patientId();
-        if (patientId == null || !patientRepository.existsById(patientId)) {
-            throw new EntityNotFoundException("Patient not found: " + patientId);
+    public Condition saveCondition(Condition condition) {
+        if (condition.getPatientId() == null || !patientRepository.existsById(condition.getPatientId())) {
+            throw new EntityNotFoundException("Patient not found: " + condition.getPatientId());
         }
-
-        Long recorderId = dto.practitionerId();
-        if (recorderId != null && !practitionerRepository.existsById(recorderId)) {
-            throw new EntityNotFoundException("practitioner not found: " + recorderId);
+        if (condition.getPractitionerId() != null &&
+                !practitionerRepository.existsById(condition.getPractitionerId())) {
+            throw new EntityNotFoundException("Practitioner not found: " + condition.getPractitionerId());
         }
-
-        // Entiteten har redan satta ID-fält via ApiMapper.toEntity(dto); vi behöver inte set:a relationer.
         return conditionRepository.save(condition);
     }
 

@@ -9,6 +9,7 @@ import com.PatientSystem.PatientSystem.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -57,6 +58,7 @@ public class AuthService {
      * Hämta användare via foreignId
      */
     public Optional<User> getUserByForeignId(Long foreignId) {
-        return users.findByForeignId(foreignId);
+        return users.findByForeignIdAndRoleIn(foreignId,
+                Arrays.asList(Role.DOCTOR, Role.STAFF));
     }
 }

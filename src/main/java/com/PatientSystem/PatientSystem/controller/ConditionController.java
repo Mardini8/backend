@@ -37,8 +37,8 @@ public class ConditionController {
 
     @PostMapping
     public ResponseEntity<ConditionDTO> createCondition(@RequestBody ConditionDTO dto) {
-        Condition entity = ApiMapper.toEntity(dto);
-        Condition saved = conditionService.saveCondition(entity, dto);
+        Condition condition = ApiMapper.toEntity(dto);
+        Condition saved = conditionService.saveCondition(condition);
 
         return ResponseEntity
                 .created(URI.create("/api/v1/clinical/conditions/" + saved.getId()))
@@ -54,7 +54,7 @@ public class ConditionController {
                 .map(existing -> {
                     Condition updated = ApiMapper.toEntity(dto);
                     updated.setId(id);
-                    Condition saved = conditionService.saveCondition(updated, dto);
+                    Condition saved = conditionService.saveCondition(updated);
                     return ResponseEntity.ok(ApiMapper.toDTO(saved));
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

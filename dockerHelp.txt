@@ -4,7 +4,7 @@ maven clean
 maven package
 
 docker build -t patientsystem-backend .
-docker rm patientsystem-backend
+docker rm -f patientsystem-backend
 docker run -d \
     --name patientsystem-backend \
     --network patientsystem-net \
