@@ -37,7 +37,7 @@ public class ApiMapper {
                 m.getId(),
                 m.getFromUserId(),
                 m.getToUserId(),
-                m.getPatientId(),
+                m.getPatientPersonnummer(),
                 m.getContent(),
                 m.getSentAt()
         );
@@ -49,7 +49,7 @@ public class ApiMapper {
         m.setId(dto.id());
         m.setFromUserId(dto.fromUserId());
         m.setToUserId(dto.toUserId());
-        m.setPatientId(dto.patientId());
+        m.setPatientPersonnummer(dto.patientPersonnummer());
         m.setContent(dto.content());
         m.setSentAt(dto.sentAt());
         return m;

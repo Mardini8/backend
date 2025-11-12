@@ -6,7 +6,7 @@ public record MessageDTO(
         Long id,
         Long fromUserId,
         Long toUserId,
-        Long patientId,
+        String patientPersonnummer,
         String content,
         LocalDateTime sentAt
 ) {}
