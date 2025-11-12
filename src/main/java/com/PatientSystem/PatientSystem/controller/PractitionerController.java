@@ -1,97 +1,56 @@
 package com.PatientSystem.PatientSystem.controller;
 
 import com.PatientSystem.PatientSystem.dto.PractitionerDTO;
-import com.PatientSystem.PatientSystem.mapper.ApiMapper;
-import com.PatientSystem.PatientSystem.model.Practitioner;
-import com.PatientSystem.PatientSystem.service.PractitionerService;
+import com.PatientSystem.PatientSystem.mapper.FhirMapper;
+import com.PatientSystem.PatientSystem.service.HapiPractitionerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
+/**
+ * Controller för Practitioner - använder HAPI FHIR
+ */
 @RestController
 @RequestMapping("/api/practitioners")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
+@RequiredArgsConstructor
 public class PractitionerController {
 
-    private final PractitionerService practitionerService;
+    private final HapiPractitionerService hapiPractitionerService;
 
     /**
-     * POST /api/practitioners
-     * Skapar en ny practitioner (Doctor eller Staff)
-     */
-    @PostMapping
-    public ResponseEntity<PractitionerDTO> createPractitioner(@RequestBody PractitionerDTO dto) {
-        // Validera title
-        if (dto.title() != null &&
-                !dto.title().equalsIgnoreCase("Doctor") &&
-                !dto.title().equalsIgnoreCase("Staff")) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Practitioner practitioner = ApiMapper.toEntity(dto);
-        Practitioner saved = practitionerService.createPractitioner(practitioner);
-
-        return ResponseEntity
-                .created(URI.create("/api/practitioners/" + saved.getId()))
-                .body(ApiMapper.toDTO(saved));
-    }
-
-    /**
-     * GET /api/practitioners
-     * Hämtar alla practitioners
+     * Hämta alla practitioners från HAPI
      */
     @GetMapping
     public List<PractitionerDTO> getAllPractitioners() {
-        return practitionerService.getAllPractitioners()
+        return hapiPractitionerService.getAllPractitioners()
                 .stream()
-                .map(ApiMapper::toDTO)
+                .map(FhirMapper::practitionerToDTO)
                 .toList();
     }
 
     /**
-     * GET /api/practitioners/{id}
-     * Hämtar en specifik practitioner
+     * Hämta en specifik practitioner
+     * id kan vara antingen numeriskt eller UUID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<PractitionerDTO> getById(@PathVariable Long id) {
-        return practitionerService.getPractitionerById(id)
-                .map(ApiMapper::toDTO)
+    public ResponseEntity<PractitionerDTO> getPractitionerById(@PathVariable String id) {
+        return hapiPractitionerService.getPractitionerById(id)
+                .map(FhirMapper::practitionerToDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
-     * GET /api/practitioners/by-title/{title}
-     * Hämtar alla practitioners med en specifik title (Doctor eller Staff)
+     * Sök practitioner baserat på namn
      */
-    @GetMapping("/by-title/{title}")
-    public List<PractitionerDTO> getByTitle(@PathVariable String title) {
-        return practitionerService.getPractitionersByTitle(title)
+    @GetMapping("/search")
+    public List<PractitionerDTO> searchPractitioner(@RequestParam String name) {
+        return hapiPractitionerService.searchPractitionerByName(name)
                 .stream()
-                .map(ApiMapper::toDTO)
+                .map(FhirMapper::practitionerToDTO)
                 .toList();
-    }
-
-    /**
-     * PUT /api/practitioners/{id}
-     * Uppdaterar en practitioner
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<PractitionerDTO> updatePractitioner(
-            @PathVariable Long id,
-            @RequestBody PractitionerDTO dto) {
-
-        return practitionerService.getPractitionerById(id)
-                .map(existing -> {
-                    Practitioner updated = ApiMapper.toEntity(dto);
-                    updated.setId(id);
-                    Practitioner saved = practitionerService.updatePractitioner(updated);
-                    return ResponseEntity.ok(ApiMapper.toDTO(saved));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

@@ -30,56 +30,6 @@ public class ApiMapper {
         return u;
     }
 
-    // ========== PATIENT ==========
-    public static PatientDTO toDTO(Patient p) {
-        if (p == null) return null;
-        return new PatientDTO(
-                p.getId(),
-                p.getFirstName(),
-                p.getLastName(),
-                p.getSocialSecurityNumber(),
-                p.getDateOfBirth()
-        );
-    }
-
-    public static Patient toEntity(PatientDTO dto) {
-        if (dto == null) return null;
-        Patient p = new Patient();
-        p.setId(dto.id());
-        p.setFirstName(dto.firstName());
-        p.setLastName(dto.lastName());
-        p.setSocialSecurityNumber(dto.socialSecurityNumber());
-        p.setDateOfBirth(dto.dateOfBirth());
-        return p;
-    }
-
-    // ========== PRACTITIONER ==========
-    public static PractitionerDTO toDTO(Practitioner p) {
-        if (p == null) return null;
-        return new PractitionerDTO(
-                p.getId(),
-                p.getFirstName(),
-                p.getLastName(),
-                p.getSocialSecurityNumber(),
-                p.getDateOfBirth(),
-                p.getTitle(),
-                p.getOrganizationId()
-        );
-    }
-
-    public static Practitioner toEntity(PractitionerDTO dto) {
-        if (dto == null) return null;
-        Practitioner p = new Practitioner();
-        p.setId(dto.id());
-        p.setFirstName(dto.firstName());
-        p.setLastName(dto.lastName());
-        p.setSocialSecurityNumber(dto.socialSecurityNumber());
-        p.setDateOfBirth(dto.dateOfBirth());
-        p.setTitle(dto.title());
-        p.setOrganizationId(dto.organizationId());
-        return p;
-    }
-
     // ========== ORGANIZATION ==========
     public static OrganizationDTO toDTO(Organization o) {
         if (o == null) return null;
@@ -114,79 +64,6 @@ public class ApiMapper {
         l.setId(dto.id());
         l.setName(dto.name());
         return l;
-    }
-
-    // ========== OBSERVATION ==========
-    public static ObservationDTO toDTO(Observation o) {
-        if (o == null) return null;
-        return new ObservationDTO(
-                o.getId(),
-                o.getPatientId(),
-                o.getPerformerId(),
-                o.getEncounterId(),
-                o.getDescription(),
-                o.getEffectiveDateTime()
-        );
-    }
-
-    public static Observation toEntity(ObservationDTO dto) {
-        if (dto == null) return null;
-        Observation o = new Observation();
-        o.setId(dto.id());
-        o.setPatientId(dto.patientId());
-        o.setPerformerId(dto.performerId());
-        o.setEncounterId(dto.encounterId());
-        o.setDescription(dto.description());
-        o.setEffectiveDateTime(dto.effectiveDateTime());
-        return o;
-    }
-
-    // ========== CONDITION ==========
-    public static ConditionDTO toDTO(Condition c) {
-        if (c == null) return null;
-        return new ConditionDTO(
-                c.getId(),
-                c.getPatientId(),
-                c.getPractitionerId(),
-                c.getDescription(),
-                c.getAssertedDate()
-        );
-    }
-
-    public static Condition toEntity(ConditionDTO dto) {
-        if (dto == null) return null;
-        Condition c = new Condition();
-        c.setId(dto.id());
-        c.setPatientId(dto.patientId());
-        c.setPractitionerId(dto.practitionerId());
-        c.setDescription(dto.description());
-        c.setAssertedDate(dto.assertedDate());
-        return c;
-    }
-
-    // ========== ENCOUNTER ==========
-    public static EncounterDTO toDTO(Encounter e) {
-        if (e == null) return null;
-        return new EncounterDTO(
-                e.getId(),
-                e.getPatientId(),
-                e.getPractitionerId(),
-                e.getLocationId(),
-                e.getStartTime(),
-                e.getEndTime()
-        );
-    }
-
-    public static Encounter toEntity(EncounterDTO dto) {
-        if (dto == null) return null;
-        Encounter e = new Encounter();
-        e.setId(dto.id());
-        e.setPatientId(dto.patientId());
-        e.setPractitionerId(dto.practitionerId());
-        e.setLocationId(dto.locationId());
-        e.setStartTime(dto.startTime());
-        e.setEndTime(dto.endTime());
-        return e;
     }
 
     // ========== MESSAGE ==========

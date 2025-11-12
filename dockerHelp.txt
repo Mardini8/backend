@@ -31,3 +31,6 @@ docker run -d \
 
 Logga in i docker mysql:
 docker exec -it mysql-container mysql -u user -p
+
+DROP DATABASE patientsystemdb;
+CREATE DATABASE patientsystemdb;

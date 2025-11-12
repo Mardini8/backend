@@ -1,80 +1,45 @@
 package com.PatientSystem.PatientSystem.controller;
 
 import com.PatientSystem.PatientSystem.dto.ObservationDTO;
-import com.PatientSystem.PatientSystem.mapper.ApiMapper;
-import com.PatientSystem.PatientSystem.model.Observation;
-import com.PatientSystem.PatientSystem.repository.EncounterRepository;
-import com.PatientSystem.PatientSystem.repository.PatientRepository;
-import com.PatientSystem.PatientSystem.repository.PractitionerRepository;
-import com.PatientSystem.PatientSystem.service.ObservationService;
+import com.PatientSystem.PatientSystem.mapper.FhirMapper;
+import com.PatientSystem.PatientSystem.service.HapiObservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
+/**
+ * Controller för Observation - använder HAPI FHIR
+ */
 @RestController
 @RequestMapping("/api/v1/clinical/observations")
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class ObservationController {
 
-    private final ObservationService observationService;
+    private final HapiObservationService hapiObservationService;
 
-
+    /**
+     * Hämta observations för en specifik patient från HAPI
+     * patientId kan vara antingen numeriskt (1, 2, 3) eller UUID
+     */
     @GetMapping("/patient/{patientId}")
-    public List<ObservationDTO> getObservationsForPatient(@PathVariable Long patientId) {
-        return observationService.getObservationsForPatient(patientId)
+    public List<ObservationDTO> getObservationsForPatient(@PathVariable String patientId) {
+        return hapiObservationService.getObservationsForPatient(patientId)
                 .stream()
-                .map(ApiMapper::toDTO)
+                .map(FhirMapper::observationToDTO)
                 .toList();
     }
 
-    @GetMapping("/performer/{performerId}")
-    public List<ObservationDTO> getObservationsByPerformer(@PathVariable Long performerId) {
-        return observationService.getObservationsByPerformer(performerId)
-                .stream()
-                .map(ApiMapper::toDTO)
-                .toList();
-    }
-
+    /**
+     * Hämta en specifik observation
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<ObservationDTO> getObservationById(@PathVariable Long id) {
-        return observationService.getObservationById(id)
-                .map(ApiMapper::toDTO)
+    public ResponseEntity<ObservationDTO> getObservationById(@PathVariable String id) {
+        return hapiObservationService.getObservationById(id)
+                .map(FhirMapper::observationToDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<ObservationDTO> createObservation(@RequestBody ObservationDTO dto) {
-        Observation observation = ApiMapper.toEntity(dto);
-        Observation saved = observationService.saveObservation(observation);
-
-        return ResponseEntity
-                .created(URI.create("/api/v1/clinical/observations/" + saved.getId()))
-                .body(ApiMapper.toDTO(saved));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ObservationDTO> updateObservation(@PathVariable Long id, @RequestBody ObservationDTO dto) {
-        return observationService.getObservationById(id)
-                .map(existing -> {
-                    Observation updated = ApiMapper.toEntity(dto);
-                    updated.setId(id);
-                    Observation saved = observationService.saveObservation(updated);
-                    return ResponseEntity.ok(ApiMapper.toDTO(saved));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteObservation(@PathVariable Long id) {
-        if (observationService.getObservationById(id).isPresent()) {
-            observationService.deleteObservation(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
     }
 }

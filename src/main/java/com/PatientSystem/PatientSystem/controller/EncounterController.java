@@ -1,90 +1,45 @@
 package com.PatientSystem.PatientSystem.controller;
 
 import com.PatientSystem.PatientSystem.dto.EncounterDTO;
-import com.PatientSystem.PatientSystem.mapper.ApiMapper;
-import com.PatientSystem.PatientSystem.model.Encounter;
-import com.PatientSystem.PatientSystem.repository.LocationRepository;
-import com.PatientSystem.PatientSystem.repository.PatientRepository;
-import com.PatientSystem.PatientSystem.repository.PractitionerRepository;
-import com.PatientSystem.PatientSystem.service.EncounterService;
+import com.PatientSystem.PatientSystem.mapper.FhirMapper;
+import com.PatientSystem.PatientSystem.service.HapiEncounterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
+/**
+ * Controller för Encounter - använder HAPI FHIR
+ */
 @RestController
 @RequestMapping("/api/v1/clinical/encounters")
 @CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class EncounterController {
 
-    private final EncounterService encounterService;
+    private final HapiEncounterService hapiEncounterService;
 
+    /**
+     * Hämta encounters för en specifik patient från HAPI
+     * patientId kan vara antingen numeriskt (1, 2, 3) eller UUID
+     */
     @GetMapping("/patient/{patientId}")
-    public List<EncounterDTO> getEncountersForPatient(@PathVariable Long patientId) {
-        return encounterService.getEncountersForPatient(patientId)
+    public List<EncounterDTO> getEncountersForPatient(@PathVariable String patientId) {
+        return hapiEncounterService.getEncountersForPatient(patientId)
                 .stream()
-                .map(ApiMapper::toDTO)
+                .map(FhirMapper::encounterToDTO)
                 .toList();
     }
 
-    @GetMapping("/practitioner/{practitionerId}")
-    public List<EncounterDTO> getEncountersByPractitioner(@PathVariable Long practitionerId) {
-        return encounterService.getEncountersByPractitioner(practitionerId)
-                .stream()
-                .map(ApiMapper::toDTO)
-                .toList();
-    }
-
-    @GetMapping("/location/{locationId}")
-    public List<EncounterDTO> getEncountersByLocation(@PathVariable Long locationId) {
-        return encounterService.getEncountersByLocation(locationId)
-                .stream()
-                .map(ApiMapper::toDTO)
-                .toList();
-    }
-
+    /**
+     * Hämta en specifik encounter
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<EncounterDTO> getEncounterById(@PathVariable Long id) {
-        return encounterService.getEncounterById(id)
-                .map(ApiMapper::toDTO)
+    public ResponseEntity<EncounterDTO> getEncounterById(@PathVariable String id) {
+        return hapiEncounterService.getEncounterById(id)
+                .map(FhirMapper::encounterToDTO)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public ResponseEntity<EncounterDTO> createEncounter(@RequestBody EncounterDTO dto) {
-        Encounter entity = ApiMapper.toEntity(dto);
-        Encounter saved = encounterService.saveEncounter(entity);
-
-        return ResponseEntity
-                .created(URI.create("/api/v1/clinical/encounters/" + saved.getId()))
-                .body(ApiMapper.toDTO(saved));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<EncounterDTO> updateEncounter(
-            @PathVariable Long id,
-            @RequestBody EncounterDTO dto) {
-
-        return encounterService.getEncounterById(id)
-                .map(existing -> {
-                    Encounter updated = ApiMapper.toEntity(dto);
-                    updated.setId(id);
-                    Encounter saved = encounterService.saveEncounter(updated);
-                    return ResponseEntity.ok(ApiMapper.toDTO(saved));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEncounter(@PathVariable Long id) {
-        if (encounterService.getEncounterById(id).isPresent()) {
-            encounterService.deleteEncounter(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
     }
 }

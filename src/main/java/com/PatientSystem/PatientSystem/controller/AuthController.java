@@ -20,7 +20,7 @@ public class AuthController {
             String email,
             String password,
             Role role,
-            Long foreignId  // Patient ID eller Practitioner ID
+            String foreignId
     ) {}
 
     public record LoginRequest(String username, String password) {}
@@ -55,7 +55,7 @@ public class AuthController {
     }
 
     @GetMapping("/user-by-foreign/{foreignId}")
-    public ResponseEntity<UserDTO> getUserByForeignId(@PathVariable Long foreignId) {
+    public ResponseEntity<UserDTO> getUserByForeignId(@PathVariable String foreignId) {
         return auth.getUserByForeignId(foreignId)
                 .map(ApiMapper::toDTO)
                 .map(ResponseEntity::ok)
