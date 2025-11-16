@@ -11,19 +11,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service för att hämta och skapa Observation-data i HAPI FHIR servern
- * UPPDATERAD: Inkluderar alla obligatoriska FHIR-fält
- */
 @Service
 @RequiredArgsConstructor
 public class HapiObservationService {
 
     private final HapiClientService hapiClient;
 
-    /**
-     * Hämta alla observations från HAPI
-     */
     public List<Observation> getAllObservations() {
         IGenericClient client = hapiClient.getClient();
 
@@ -39,9 +32,6 @@ public class HapiObservationService {
                 .toList();
     }
 
-    /**
-     * Hämta observations för en specifik patient
-     */
     public List<Observation> getObservationsForPatient(String patientId) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -64,9 +54,6 @@ public class HapiObservationService {
         }
     }
 
-    /**
-     * Hämta en specifik observation
-     */
     public Optional<Observation> getObservationById(String id) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -84,18 +71,6 @@ public class HapiObservationService {
         }
     }
 
-    /**
-     * Skapa en ny observation i HAPI FHIR
-     * UPPDATERAD: Med alla obligatoriska fält enligt FHIR R4 standard
-     *
-     * @param patientPersonnummer Patient UUID från HAPI
-     * @param performerPersonnummer Practitioner UUID från HAPI (valfri)
-     * @param description Beskrivning av observationen
-     * @param value Värde (valfri)
-     * @param unit Enhet (valfri)
-     * @param effectiveDateTime Datum och tid för observationen
-     * @return Den skapade observationen
-     */
     public Observation createObservation(
             String patientPersonnummer,
             String performerPersonnummer,
@@ -106,18 +81,15 @@ public class HapiObservationService {
     ) {
         IGenericClient client = hapiClient.getClient();
 
-        // Skapa observation enligt HAPI FHIR best practices
         Observation observation = new Observation();
         observation.setStatus(Observation.ObservationStatus.FINAL);
 
-        // Lägg till category
         observation.addCategory()
                 .addCoding()
                 .setSystem("http://terminology.hl7.org/CodeSystem/observation-category")
                 .setCode("vital-signs")
                 .setDisplay("Vital signs");
 
-        // Sätt code med LOINC
         observation.getCode()
                 .addCoding()
                 .setSystem("http://loinc.org")
@@ -125,15 +97,12 @@ public class HapiObservationService {
                 .setDisplay(description);
         observation.getCode().setText(description);
 
-        // Sätt patient reference
         observation.setSubject(new Reference("Patient/" + patientPersonnummer));
 
-        // Sätt performer (om angiven)
         if (performerPersonnummer != null && !performerPersonnummer.isEmpty()) {
             observation.addPerformer(new Reference("Practitioner/" + performerPersonnummer));
         }
 
-        // Sätt värde om angivet
         if (value != null && !value.isEmpty()) {
             try {
                 double numericValue = Double.parseDouble(value);
@@ -144,23 +113,19 @@ public class HapiObservationService {
                         .setCode(unit != null && !unit.isEmpty() ? unit : "{score}");
                 observation.setValue(quantity);
             } catch (NumberFormatException e) {
-                // Om värdet inte är ett nummer, sätt som string
                 observation.setValue(new StringType(value));
             }
         }
 
-        // Sätt datum
         observation.setEffective(new DateTimeType(effectiveDateTime));
         observation.setIssued(effectiveDateTime);
 
-        // Skapa i HAPI
         try {
             MethodOutcome outcome = client
                     .create()
                     .resource(observation)
                     .execute();
 
-            // Hämta tillbaka den skapade resursen
             String newId = outcome.getId().getIdPart();
             System.out.println("Observation skapad med ID: " + newId);
             return getObservationById(newId).orElse(observation);

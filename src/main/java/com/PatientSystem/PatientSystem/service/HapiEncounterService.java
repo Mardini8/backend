@@ -11,19 +11,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service för att hämta och skapa Encounter-data i HAPI FHIR servern
- * UPPDATERAD: Inkluderar alla obligatoriska FHIR-fält
- */
 @Service
 @RequiredArgsConstructor
 public class HapiEncounterService {
 
     private final HapiClientService hapiClient;
 
-    /**
-     * Hämta alla encounters från HAPI
-     */
     public List<Encounter> getAllEncounters() {
         IGenericClient client = hapiClient.getClient();
 
@@ -39,9 +32,6 @@ public class HapiEncounterService {
                 .toList();
     }
 
-    /**
-     * Hämta encounters för en specifik patient
-     */
     public List<Encounter> getEncountersForPatient(String patientId) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -64,9 +54,6 @@ public class HapiEncounterService {
         }
     }
 
-    /**
-     * Hämta en specifik encounter
-     */
     public Optional<Encounter> getEncounterById(String id) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -84,16 +71,6 @@ public class HapiEncounterService {
         }
     }
 
-    /**
-     * Skapa ett nytt encounter (besök) i HAPI FHIR
-     * UPPDATERAD: Med alla obligatoriska fält enligt FHIR R4 standard
-     *
-     * @param patientPersonnummer Patient UUID från HAPI
-     * @param practitionerPersonnummer Practitioner UUID från HAPI (valfri)
-     * @param startTime Starttid för besöket
-     * @param endTime Sluttid för besöket (valfri)
-     * @return Det skapade encountern
-     */
     public Encounter createEncounter(
             String patientPersonnummer,
             String practitionerPersonnummer,
@@ -102,41 +79,33 @@ public class HapiEncounterService {
     ) {
         IGenericClient client = hapiClient.getClient();
 
-        // Skapa encounter enligt HAPI FHIR best practices
         Encounter encounter = new Encounter();
         encounter.setStatus(Encounter.EncounterStatus.FINISHED);
 
-        // Sätt class (obligatoriskt)
         encounter.setClass_(new Coding()
                 .setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode")
                 .setCode("AMB")
                 .setDisplay("ambulatory"));
 
-        // Lägg till type
         encounter.addType()
                 .addCoding()
                 .setSystem("http://snomed.info/sct")
                 .setCode("185349003")
                 .setDisplay("Encounter for check up (procedure)");
 
-        // Sätt patient reference
         encounter.setSubject(new Reference("Patient/" + patientPersonnummer));
 
-        // Sätt practitioner som participant (om angiven)
         if (practitionerPersonnummer != null && !practitionerPersonnummer.isEmpty()) {
             Encounter.EncounterParticipantComponent participant = encounter.addParticipant();
 
-            // Lägg till participant type
             participant.addType()
                     .addCoding()
                     .setSystem("http://terminology.hl7.org/CodeSystem/v3-ParticipationType")
                     .setCode("PPRF")
                     .setDisplay("primary performer");
 
-            // Sätt practitioner reference
             participant.setIndividual(new Reference("Practitioner/" + practitionerPersonnummer));
 
-            // Sätt period för participant
             Period participantPeriod = new Period();
             participantPeriod.setStart(startTime);
             if (endTime != null) {
@@ -145,7 +114,6 @@ public class HapiEncounterService {
             participant.setPeriod(participantPeriod);
         }
 
-        // Sätt period (obligatoriskt)
         Period period = new Period();
         period.setStart(startTime);
         if (endTime != null) {
@@ -153,14 +121,12 @@ public class HapiEncounterService {
         }
         encounter.setPeriod(period);
 
-        // Skapa i HAPI
         try {
             MethodOutcome outcome = client
                     .create()
                     .resource(encounter)
                     .execute();
 
-            // Hämta tillbaka den skapade resursen
             String newId = outcome.getId().getIdPart();
             System.out.println("Encounter skapat med ID: " + newId);
             return getEncounterById(newId).orElse(encounter);

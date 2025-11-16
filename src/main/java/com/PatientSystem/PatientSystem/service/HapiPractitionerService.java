@@ -10,18 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service för att hämta Practitioner-data från HAPI FHIR servern
- */
 @Service
 @RequiredArgsConstructor
 public class HapiPractitionerService {
 
     private final HapiClientService hapiClient;
 
-    /**
-     * Hämta alla practitioners från HAPI
-     */
     public List<Practitioner> getAllPractitioners() {
         IGenericClient client = hapiClient.getClient();
 
@@ -37,9 +31,6 @@ public class HapiPractitionerService {
                 .toList();
     }
 
-    /**
-     * Hämta en specifik practitioner
-     */
     public Optional<Practitioner> getPractitionerById(String id) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -57,9 +48,6 @@ public class HapiPractitionerService {
         }
     }
 
-    /**
-     * Sök practitioner baserat på namn
-     */
     public List<Practitioner> searchPractitionerByName(String name) {
         try {
             IGenericClient client = hapiClient.getClient();

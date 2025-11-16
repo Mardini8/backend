@@ -16,12 +16,10 @@ public class AuthService {
     }
 
     public User register(String username, String email, String password, Role role, String foreignId) {
-        // Kontrollera om användarnamn är upptaget
         if(users.existsByUsername(username)) {
             throw new IllegalArgumentException("Username taken");
         }
 
-        // Kontrollera om foreignId redan är kopplad till en annan användare
         if(foreignId != null && users.findByForeignId(foreignId).isPresent()) {
             throw new IllegalArgumentException("This person is already registered");
         }
@@ -48,10 +46,6 @@ public class AuthService {
         return users.findById(id);
     }
 
-    /**
-     * Hämta användare via foreignId
-     * Filtrerar på DOCTOR/STAFF för att hitta practitioners
-     */
     public Optional<User> getUserByForeignId(String foreignId) {
         return users.findByForeignIdAndRoleIn(foreignId, java.util.Arrays.asList(Role.DOCTOR, Role.STAFF));
     }

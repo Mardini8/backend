@@ -18,10 +18,6 @@ import java.util.List;
 public class MessageController {
     private final MessageService service;
 
-    /**
-     * Hämta meddelanden för en patient (via personnummer)
-     * @param patientPersonnummer FHIR UUID (socialSecurityNumber)
-     */
     @GetMapping("/patient/{patientPersonnummer}")
     public List<MessageDTO> forPatient(@PathVariable String patientPersonnummer) {
         return service.forPatient(patientPersonnummer)
@@ -30,9 +26,6 @@ public class MessageController {
                 .toList();
     }
 
-    /**
-     * Hämta meddelanden från en användare
-     */
     @GetMapping("/from-user/{userId}")
     public List<MessageDTO> fromUser(@PathVariable Long userId) {
         return service.fromUser(userId)
@@ -41,9 +34,6 @@ public class MessageController {
                 .toList();
     }
 
-    /**
-     * Hämta meddelanden till en användare
-     */
     @GetMapping("/to-user/{userId}")
     public List<MessageDTO> toUser(@PathVariable Long userId) {
         return service.toUser(userId)
@@ -52,9 +42,6 @@ public class MessageController {
                 .toList();
     }
 
-    /**
-     * Skicka ett meddelande
-     */
     @PostMapping
     public ResponseEntity<MessageDTO> send(@RequestBody MessageDTO dto) {
         Message message = ApiMapper.toEntity(dto);

@@ -18,9 +18,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // ÄNDRAT: foreignId är nu String för att matcha HAPI FHIR ID-format
-    // För PATIENT: "1", "2", etc (Patient ID från HAPI)
-    // För DOCTOR/STAFF: "1", "2", etc (Practitioner ID från HAPI)
     @Column(unique = true)
     private String foreignId;
 }

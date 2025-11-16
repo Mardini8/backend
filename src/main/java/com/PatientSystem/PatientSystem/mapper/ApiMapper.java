@@ -5,7 +5,6 @@ import com.PatientSystem.PatientSystem.model.*;
 
 public class ApiMapper {
 
-    // ========== USER ==========
     public static UserDTO toDTO(User u) {
         if (u == null) return null;
         return new UserDTO(
@@ -30,7 +29,6 @@ public class ApiMapper {
         return u;
     }
 
-    // ========== MESSAGE ==========
     public static MessageDTO toDTO(Message m) {
         if (m == null) return null;
         return new MessageDTO(

@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller för Practitioner - använder HAPI FHIR
- */
 @RestController
 @RequestMapping("/api/practitioners")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -20,9 +17,6 @@ public class PractitionerController {
 
     private final HapiPractitionerService hapiPractitionerService;
 
-    /**
-     * Hämta alla practitioners från HAPI
-     */
     @GetMapping
     public List<PractitionerDTO> getAllPractitioners() {
         return hapiPractitionerService.getAllPractitioners()
@@ -31,10 +25,6 @@ public class PractitionerController {
                 .toList();
     }
 
-    /**
-     * Hämta en specifik practitioner
-     * id kan vara antingen numeriskt eller UUID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<PractitionerDTO> getPractitionerById(@PathVariable String id) {
         return hapiPractitionerService.getPractitionerById(id)
@@ -43,9 +33,6 @@ public class PractitionerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    /**
-     * Sök practitioner baserat på namn
-     */
     @GetMapping("/search")
     public List<PractitionerDTO> searchPractitioner(@RequestParam String name) {
         return hapiPractitionerService.searchPractitionerByName(name)

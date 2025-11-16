@@ -10,40 +10,27 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service för att hämta Patient-data från HAPI FHIR servern
- * Ersätter PatientRepository/PatientService för högre betyg
- */
 @Service
 @RequiredArgsConstructor
 public class HapiPatientService {
 
     private final HapiClientService hapiClient;
 
-    /**
-     * Hämta alla patienter från HAPI
-     * OBS: Hanterar inte pagination än (max 20 patienter)
-     */
     public List<Patient> getAllPatients() {
         IGenericClient client = hapiClient.getClient();
 
-        // Sök efter alla patienter
         Bundle bundle = client
                 .search()
                 .forResource(Patient.class)
                 .returnBundle(Bundle.class)
                 .execute();
 
-        // Konvertera Bundle till lista av Patient-objekt
         return BundleUtil.toListOfEntries(hapiClient.getContext(), bundle)
                 .stream()
                 .map(entry -> (Patient) entry.getResource())
                 .toList();
     }
 
-    /**
-     * Hämta en patient med specifikt ID från HAPI
-     */
     public Optional<Patient> getPatientById(String id) {
         try {
             IGenericClient client = hapiClient.getClient();
@@ -61,10 +48,6 @@ public class HapiPatientService {
         }
     }
 
-    /**
-     * Sök patient baserat på personnummer (identifier)
-     * I HAPI är personnummer lagrat som en Identifier
-     */
     public Optional<Patient> getPatientByPersonnummer(String personnummer) {
         try {
             IGenericClient client = hapiClient.getClient();

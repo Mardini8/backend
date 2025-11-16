@@ -12,11 +12,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Inaktivera CSRF (Cross-Site Request Forgery)
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Använd "/**" för att matcha ALLA sökvägar rekursivt
-                        // 2. Ta bort ".anyRequest().authenticated()" helt
                         .requestMatchers("/**").permitAll()
                 );
 

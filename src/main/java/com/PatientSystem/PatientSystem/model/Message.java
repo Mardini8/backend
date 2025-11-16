@@ -20,12 +20,9 @@ public class Message {
 
     private LocalDateTime sentAt = LocalDateTime.now();
 
-    // User IDs (för att hitta User-objekt i databasen)
     private Long fromUserId;
     private Long toUserId;
 
-    // Patient personnummer (FHIR UUID från socialSecurityNumber)
-    // T.ex. "dd256214-a911-bbc9-bc56-2976d2336c93"
     @Column(length = 255)
     private String patientPersonnummer;
 }
