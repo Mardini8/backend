@@ -13,6 +13,7 @@ import java.util.Optional;
 
 /**
  * Service för att hämta och skapa Observation-data i HAPI FHIR servern
+ * UPPDATERAD: Inkluderar alla obligatoriska FHIR-fält
  */
 @Service
 @RequiredArgsConstructor
@@ -85,6 +86,7 @@ public class HapiObservationService {
 
     /**
      * Skapa en ny observation i HAPI FHIR
+     * UPPDATERAD: Med alla obligatoriska fält enligt FHIR R4 standard
      *
      * @param patientPersonnummer Patient UUID från HAPI
      * @param performerPersonnummer Practitioner UUID från HAPI (valfri)
@@ -104,11 +106,26 @@ public class HapiObservationService {
     ) {
         IGenericClient client = hapiClient.getClient();
 
-        // Skapa observation
+        // Skapa observation enligt HAPI FHIR best practices
         Observation observation = new Observation();
         observation.setStatus(Observation.ObservationStatus.FINAL);
 
-        // Sätt patient
+        // Lägg till category
+        observation.addCategory()
+                .addCoding()
+                .setSystem("http://terminology.hl7.org/CodeSystem/observation-category")
+                .setCode("vital-signs")
+                .setDisplay("Vital signs");
+
+        // Sätt code med LOINC
+        observation.getCode()
+                .addCoding()
+                .setSystem("http://loinc.org")
+                .setCode("8310-5")
+                .setDisplay(description);
+        observation.getCode().setText(description);
+
+        // Sätt patient reference
         observation.setSubject(new Reference("Patient/" + patientPersonnummer));
 
         // Sätt performer (om angiven)
@@ -116,19 +133,15 @@ public class HapiObservationService {
             observation.addPerformer(new Reference("Practitioner/" + performerPersonnummer));
         }
 
-        // Sätt beskrivning (code)
-        CodeableConcept code = new CodeableConcept();
-        code.setText(description);
-        observation.setCode(code);
-
         // Sätt värde om angivet
         if (value != null && !value.isEmpty()) {
-            Quantity quantity = new Quantity();
             try {
-                quantity.setValue(Double.parseDouble(value));
-                if (unit != null && !unit.isEmpty()) {
-                    quantity.setUnit(unit);
-                }
+                double numericValue = Double.parseDouble(value);
+                Quantity quantity = new Quantity()
+                        .setValue(numericValue)
+                        .setUnit(unit != null && !unit.isEmpty() ? unit : "{score}")
+                        .setSystem("http://unitsofmeasure.org")
+                        .setCode(unit != null && !unit.isEmpty() ? unit : "{score}");
                 observation.setValue(quantity);
             } catch (NumberFormatException e) {
                 // Om värdet inte är ett nummer, sätt som string
@@ -138,15 +151,23 @@ public class HapiObservationService {
 
         // Sätt datum
         observation.setEffective(new DateTimeType(effectiveDateTime));
+        observation.setIssued(effectiveDateTime);
 
         // Skapa i HAPI
-        MethodOutcome outcome = client
-                .create()
-                .resource(observation)
-                .execute();
+        try {
+            MethodOutcome outcome = client
+                    .create()
+                    .resource(observation)
+                    .execute();
 
-        // Hämta tillbaka den skapade resursen
-        String newId = outcome.getId().getIdPart();
-        return getObservationById(newId).orElse(observation);
+            // Hämta tillbaka den skapade resursen
+            String newId = outcome.getId().getIdPart();
+            System.out.println("Observation skapad med ID: " + newId);
+            return getObservationById(newId).orElse(observation);
+        } catch (Exception e) {
+            System.err.println("Fel vid skapande av observation: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

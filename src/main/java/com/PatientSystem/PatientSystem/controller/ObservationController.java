@@ -13,6 +13,7 @@ import java.util.List;
 
 /**
  * Controller för Observation - använder HAPI FHIR
+ * UPPDATERAD: Bättre datetime-hantering och felmeddelanden
  */
 @RestController
 @RequestMapping("/api/v1/clinical/observations")
@@ -46,13 +47,34 @@ public class ObservationController {
 
     /**
      * Skapa en ny observation i HAPI FHIR
+     * UPPDATERAD: Använder endast datum (yyyy-MM-dd) som diagnoser
      */
     @PostMapping
-    public ResponseEntity<ObservationDTO> createObservation(@RequestBody CreateObservationRequest request) {
+    public ResponseEntity<String> createObservation(@RequestBody CreateObservationRequest request) {
         try {
-            // Parse datum
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-            Date effectiveDateTime = sdf.parse(request.effectiveDateTime());
+            System.out.println("=== SKAPAR OBSERVATION ===");
+            System.out.println("Patient: " + request.patientPersonnummer());
+            System.out.println("Performer: " + request.performerPersonnummer());
+            System.out.println("Description: " + request.description());
+            System.out.println("Value: " + request.value());
+            System.out.println("Unit: " + request.unit());
+            System.out.println("Date (från frontend): " + request.effectiveDate());
+
+            // Parse datum - SAMMA FORMAT SOM DIAGNOSER: "yyyy-MM-dd"
+            Date effectiveDate;
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                effectiveDate = sdf.parse(request.effectiveDate());
+                System.out.println("Parsed date: " + effectiveDate);
+            } catch (Exception e) {
+                System.err.println("Kunde inte parsa datum: " + request.effectiveDate());
+                return ResponseEntity.badRequest().body("Ogiltigt datumformat. Använd: yyyy-MM-dd");
+            }
+
+            // Validera patient UUID
+            if (request.patientPersonnummer() == null || request.patientPersonnummer().isEmpty()) {
+                return ResponseEntity.badRequest().body("Patient personnummer saknas");
+            }
 
             // Skapa i HAPI
             org.hl7.fhir.r4.model.Observation observation = hapiObservationService.createObservation(
@@ -61,16 +83,21 @@ public class ObservationController {
                     request.description(),
                     request.value(),
                     request.unit(),
-                    effectiveDateTime
+                    effectiveDate
             );
+
+            System.out.println("✓ Observation skapad med ID: " + observation.getIdElement().getIdPart());
 
             // Konvertera till DTO
             ObservationDTO dto = FhirMapper.observationToDTO(observation);
 
-            return ResponseEntity.ok(dto);
+            return ResponseEntity.ok("Observation skapad: " + observation.getIdElement().getIdPart());
         } catch (Exception e) {
+            System.err.println("=== FEL VID SKAPANDE AV OBSERVATION ===");
+            System.err.println("Felmeddelande: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body("Kunde inte skapa observation: " + e.getMessage());
         }
     }
 
@@ -83,6 +110,6 @@ public class ObservationController {
             String description,
             String value,                     // Värde (valfri)
             String unit,                      // Enhet (valfri)
-            String effectiveDateTime          // Format: "yyyy-MM-dd'T'HH:mm"
+            String effectiveDate              // Format: "yyyy-MM-dd" (SAMMA SOM DIAGNOSER)
     ) {}
 }

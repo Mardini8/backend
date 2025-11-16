@@ -13,6 +13,7 @@ import java.util.Optional;
 
 /**
  * Service för att hämta och skapa Encounter-data i HAPI FHIR servern
+ * UPPDATERAD: Inkluderar alla obligatoriska FHIR-fält
  */
 @Service
 @RequiredArgsConstructor
@@ -85,6 +86,7 @@ public class HapiEncounterService {
 
     /**
      * Skapa ett nytt encounter (besök) i HAPI FHIR
+     * UPPDATERAD: Med alla obligatoriska fält enligt FHIR R4 standard
      *
      * @param patientPersonnummer Patient UUID från HAPI
      * @param practitionerPersonnummer Practitioner UUID från HAPI (valfri)
@@ -100,21 +102,50 @@ public class HapiEncounterService {
     ) {
         IGenericClient client = hapiClient.getClient();
 
-        // Skapa encounter
+        // Skapa encounter enligt HAPI FHIR best practices
         Encounter encounter = new Encounter();
         encounter.setStatus(Encounter.EncounterStatus.FINISHED);
 
-        // Sätt patient
+        // Sätt class (obligatoriskt)
+        encounter.setClass_(new Coding()
+                .setSystem("http://terminology.hl7.org/CodeSystem/v3-ActCode")
+                .setCode("AMB")
+                .setDisplay("ambulatory"));
+
+        // Lägg till type
+        encounter.addType()
+                .addCoding()
+                .setSystem("http://snomed.info/sct")
+                .setCode("185349003")
+                .setDisplay("Encounter for check up (procedure)");
+
+        // Sätt patient reference
         encounter.setSubject(new Reference("Patient/" + patientPersonnummer));
 
         // Sätt practitioner som participant (om angiven)
         if (practitionerPersonnummer != null && !practitionerPersonnummer.isEmpty()) {
-            Encounter.EncounterParticipantComponent participant = new Encounter.EncounterParticipantComponent();
+            Encounter.EncounterParticipantComponent participant = encounter.addParticipant();
+
+            // Lägg till participant type
+            participant.addType()
+                    .addCoding()
+                    .setSystem("http://terminology.hl7.org/CodeSystem/v3-ParticipationType")
+                    .setCode("PPRF")
+                    .setDisplay("primary performer");
+
+            // Sätt practitioner reference
             participant.setIndividual(new Reference("Practitioner/" + practitionerPersonnummer));
-            encounter.addParticipant(participant);
+
+            // Sätt period för participant
+            Period participantPeriod = new Period();
+            participantPeriod.setStart(startTime);
+            if (endTime != null) {
+                participantPeriod.setEnd(endTime);
+            }
+            participant.setPeriod(participantPeriod);
         }
 
-        // Sätt period (start och sluttid)
+        // Sätt period (obligatoriskt)
         Period period = new Period();
         period.setStart(startTime);
         if (endTime != null) {
@@ -123,13 +154,20 @@ public class HapiEncounterService {
         encounter.setPeriod(period);
 
         // Skapa i HAPI
-        MethodOutcome outcome = client
-                .create()
-                .resource(encounter)
-                .execute();
+        try {
+            MethodOutcome outcome = client
+                    .create()
+                    .resource(encounter)
+                    .execute();
 
-        // Hämta tillbaka den skapade resursen
-        String newId = outcome.getId().getIdPart();
-        return getEncounterById(newId).orElse(encounter);
+            // Hämta tillbaka den skapade resursen
+            String newId = outcome.getId().getIdPart();
+            System.out.println("Encounter skapat med ID: " + newId);
+            return getEncounterById(newId).orElse(encounter);
+        } catch (Exception e) {
+            System.err.println("Fel vid skapande av encounter: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
