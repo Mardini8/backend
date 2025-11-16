@@ -16,8 +16,14 @@ public class AuthService {
     }
 
     public User register(String username, String email, String password, Role role, String foreignId) {
+        // Kontrollera om användarnamn är upptaget
         if(users.existsByUsername(username)) {
             throw new IllegalArgumentException("Username taken");
+        }
+
+        // Kontrollera om foreignId redan är kopplad till en annan användare
+        if(foreignId != null && users.findByForeignId(foreignId).isPresent()) {
+            throw new IllegalArgumentException("This person is already registered");
         }
 
         User u = new User();
@@ -25,7 +31,7 @@ public class AuthService {
         u.setEmail(email);
         u.setPassword(password);
         u.setRole(role);
-        u.setForeignId(foreignId);  // Nu String
+        u.setForeignId(foreignId);
 
         return users.save(u);
     }

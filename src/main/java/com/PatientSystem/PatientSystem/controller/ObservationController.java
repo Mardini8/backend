@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,7 +24,6 @@ public class ObservationController {
 
     /**
      * Hämta observations för en specifik patient från HAPI
-     * patientId kan vara antingen numeriskt (1, 2, 3) eller UUID
      */
     @GetMapping("/patient/{patientId}")
     public List<ObservationDTO> getObservationsForPatient(@PathVariable String patientId) {
@@ -42,4 +43,46 @@ public class ObservationController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    /**
+     * Skapa en ny observation i HAPI FHIR
+     */
+    @PostMapping
+    public ResponseEntity<ObservationDTO> createObservation(@RequestBody CreateObservationRequest request) {
+        try {
+            // Parse datum
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+            Date effectiveDateTime = sdf.parse(request.effectiveDateTime());
+
+            // Skapa i HAPI
+            org.hl7.fhir.r4.model.Observation observation = hapiObservationService.createObservation(
+                    request.patientPersonnummer(),
+                    request.performerPersonnummer(),
+                    request.description(),
+                    request.value(),
+                    request.unit(),
+                    effectiveDateTime
+            );
+
+            // Konvertera till DTO
+            ObservationDTO dto = FhirMapper.observationToDTO(observation);
+
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Request för att skapa observation
+     */
+    public record CreateObservationRequest(
+            String patientPersonnummer,      // FHIR UUID
+            String performerPersonnummer,    // FHIR UUID (valfri)
+            String description,
+            String value,                     // Värde (valfri)
+            String unit,                      // Enhet (valfri)
+            String effectiveDateTime          // Format: "yyyy-MM-dd'T'HH:mm"
+    ) {}
 }
